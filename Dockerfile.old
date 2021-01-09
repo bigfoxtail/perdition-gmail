@@ -1,0 +1,32 @@
+FROM debian:buster
+
+# test: from debian download source code build
+RUN apt-get update && \
+    apt-get install -y openssh-server screen && \
+    apt-get clean && \
+    rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
+
+RUN \
+    mkdir /var/run/sshd && \
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo 'root:root' | chpasswd
+
+RUN apt-get update && \
+    apt-get install -y build-essential wget libvanessa-logger-dev libvanessa-adt-dev libvanessa-socket-dev libpopt-dev libpam0g-dev default-libmysqlclient-dev libpq-dev libgdbm-dev libldap2-dev debhelper zlib1g-dev libssl-dev unixodbc-dev libdb-dev libcdb-dev libidn11-dev dpkg-dev dh-autoreconf && \
+    apt-get clean && \
+    rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/*
+
+WORKDIR /root
+COPY patches/ /root/patches/
+RUN \
+    mkdir -p perdition_2.2-3 && \
+    wget http://deb.debian.org/debian/pool/main/p/perdition/perdition_2.2-3.dsc -P perdition_2.2-3 && \
+    wget http://deb.debian.org/debian/pool/main/p/perdition/perdition_2.2.orig.tar.xz -P perdition_2.2-3 && \
+    wget http://deb.debian.org/debian/pool/main/p/perdition/perdition_2.2-3.debian.tar.xz -P perdition_2.2-3 && \
+    cd perdition_2.2-3 && \
+    dpkg-source -x perdition_2.2-3.dsc && \
+    cd perdition-2.2 && \
+    cp -r /root/patches/ debian/patches/ && \
+    dpkg-buildpackage -us -uc
+
+CMD ["/usr/sbin/sshd", "-D"]

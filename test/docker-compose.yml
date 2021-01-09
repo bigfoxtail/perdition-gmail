@@ -1,0 +1,13 @@
+version: '3.7'
+
+
+services:
+  perdition_test:
+    build: .
+    image: perdition_test
+    container_name: perdition_test
+    restart: always
+    ports:
+      - '993:993'
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t

@@ -1,0 +1,59 @@
+fix ssl
+
+Support SNI (gmail require it)
+--- a/perdition/ssl.c
++++ b/perdition/ssl.c
+@@ -64,7 +64,7 @@
+ static int __perdition_ssl_check_certificate(io_t * io, const char *ca_file,
+ 		const char *ca_path, const char *server);
+ static io_t *__perdition_ssl_connection(io_t *io, SSL_CTX *ssl_ctx, 
+-		flag_t flag);
++		flag_t flag, const char *server);
+ 
+ 
+ struct passwd_cb_data {
+@@ -1281,7 +1281,7 @@
+  **********************************************************************/
+ 
+ static io_t *__perdition_ssl_connection(io_t *io, SSL_CTX *ssl_ctx, 
+-		flag_t flag)
++		flag_t flag, const char *server)
+ {
+ 	io_t *new_io = NULL;
+ 	SSL *ssl = NULL;
+@@ -1294,6 +1294,15 @@
+ 		goto bail;
+ 	}
+ 
++	if (server != NULL) {
++	    long r;
++	    r = SSL_set_tlsext_host_name(ssl, server);
++	    if (0 == r) {
++		/* handle error */
++		VANESSA_LOGGER_INFO_UNSAFE("Warning: SSL_set_tlsext_host_name(\"%s\") failed (code %#lx), trying to continue.", server, r);
++	    }
++	}
++
+ 	/* Set up io object that will use SSL */
+ 	new_io = io_create_ssl(ssl, io_get_rfd(io), io_get_wfd(io),
+ 			  io_get_name(io));
+@@ -1390,7 +1399,9 @@
+ 		return NULL;
+ 	}
+ 
+-	new_io = __perdition_ssl_connection(io, ssl_ctx, PERDITION_SSL_CLIENT);
++	VANESSA_LOGGER_DEBUG_RAW_UNSAFE("ssl connection server %s", server);
++
++	new_io = __perdition_ssl_connection(io, ssl_ctx, PERDITION_SSL_CLIENT, server);
+ 	if (!new_io) {
+ 		VANESSA_LOGGER_DEBUG("perdition_ssl_connection");
+ 		return NULL;
+@@ -1424,7 +1435,7 @@
+ {
+ 	io_t *new_io;
+ 
+-	new_io = __perdition_ssl_connection(io, ssl_ctx, PERDITION_SSL_SERVER);
++	new_io = __perdition_ssl_connection(io, ssl_ctx, PERDITION_SSL_SERVER, NULL);
+ 	if (!new_io) {
+ 		VANESSA_LOGGER_DEBUG("perdition_ssl_connection");
+ 		return NULL;

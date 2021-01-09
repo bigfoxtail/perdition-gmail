@@ -1,0 +1,13 @@
+version: '3.7'
+
+
+services:
+  perdition_fox:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    image: perdition_fox
+    container_name: perdition_fox
+    restart: always
+    ports:
+      - '993:993'
