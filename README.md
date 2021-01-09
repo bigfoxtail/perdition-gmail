@@ -12,7 +12,9 @@ If you need the support of other domains, you can view these repositories:
 
 * https://github.com/guitarmarx/perdition-image
 
-## Quickstart
+## QuickStart
+
+Install Docker Compose
 
 ```
 git clone https://github.com/bigfoxtail/perdition-gmail.git
