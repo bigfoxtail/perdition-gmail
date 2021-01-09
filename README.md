@@ -8,8 +8,9 @@ fix ssl error (SNI Support), gmail server need it.
 
 If you need the support of other domains, you can view these repositories:
 
-​	https://github.com/miguelwill/perdition-proxy
-​	https://github.com/guitarmarx/perdition-image
+* https://github.com/miguelwill/perdition-proxy
+
+* https://github.com/guitarmarx/perdition-image
 
 ## Quickstart
 
